@@ -130,7 +130,7 @@ function loadUserRating() {
         return;
     }
 
-    fetch(`/api/products/${productId}/ratings/`, {
+    fetch(`${CONFIG.API_BASE_URL}/products/${productId}/ratings/`, {
         headers: { 'Authorization': 'Bearer ' + token }
     })
     .then(res => {
@@ -180,7 +180,7 @@ function submitRating(rating) {
         return;
     }
 
-    fetch(`/api/products/${productId}/ratings/`, {
+    fetch(`${CONFIG.API_BASE_URL}/products/${productId}/ratings/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -245,7 +245,7 @@ document.getElementById('change-rating-btn').addEventListener('click', function(
 // Initialize rating display
 document.addEventListener('DOMContentLoaded', function() {
     // Load product details and rating data
-    fetch(`/api/products/${productId}/`)
+    fetch(`${CONFIG.API_BASE_URL}/products/${productId}/`)
     .then(res => res.json())
     .then(product => {
         document.title = product.name;
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load comments
-fetch(`/api/products/${productId}/comments/`)
+fetch(`${CONFIG.API_BASE_URL}/products/${productId}/comments/`)
 .then(res => res.json())
 .then(comments => {
     const container = document.getElementById('comments-container');
@@ -321,7 +321,7 @@ document.getElementById('add-to-cart-btn').addEventListener('click', function() 
     this.disabled = true;
     this.textContent = 'Adding...';
     
-    fetch('/api/cart/', {
+    fetch(`${CONFIG.API_BASE_URL}/cart/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -366,7 +366,7 @@ document.getElementById('comment-form').addEventListener('submit', function(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Posting...';
     
-    fetch(`/api/products/${productId}/comments/`, {
+    fetch(`${CONFIG.API_BASE_URL}/products/${productId}/comments/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -398,7 +398,7 @@ function deleteComment(commentId) {
     if (!confirm('Are you sure you want to delete this comment?')) return;
     
     const token = localStorage.getItem('token');
-    fetch(`/api/comments/${commentId}/`, {
+    fetch(`${CONFIG.API_BASE_URL}/comments/${commentId}/`, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + token }
     })
