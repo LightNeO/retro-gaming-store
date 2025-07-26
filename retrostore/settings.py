@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
-from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -158,7 +157,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
@@ -167,12 +165,13 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-}
+# JWT configuration (temporarily disabled for deployment)
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+# }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Retro Gaming Store API',
