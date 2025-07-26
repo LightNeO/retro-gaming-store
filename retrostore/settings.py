@@ -31,7 +31,8 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 CORS_ALLOW_CREDENTIALS = True
 
 # Get allowed hosts from environment or use defaults
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,testserver,healthcheck.railway.app,*.railway.app').split(',')
+DEFAULT_ALLOWED_HOSTS = '127.0.0.1,localhost,testserver,healthcheck.railway.app,*.railway.app,web-production-c47e.up.railway.app'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
 
 
 # Application definition
