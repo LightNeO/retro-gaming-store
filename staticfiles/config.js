@@ -6,7 +6,7 @@ const CONFIG = {
     DEV_API_URL: 'http://127.0.0.1:8000/api',
     
     // Production backend (update this with your actual Railway/Render URL)
-    PROD_API_URL: 'https://your-app-name.railway.app/api', // Update this!
+    PROD_API_URL: 'https://web-production-c47e.up.railway.app/api', // Your Railway backend!
     
     // Auto-detect environment
     get API_BASE_URL() {
