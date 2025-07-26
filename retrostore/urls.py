@@ -24,6 +24,11 @@ from store.models import Product
 from django.shortcuts import render
 
 
+def health_check(request):
+    """Simple health check endpoint for Railway"""
+    return JsonResponse({'status': 'healthy', 'message': 'Retro Gaming Store is running!'})
+
+
 def debug_products(request):
     products = Product.objects.all()[:5]
     data = [{'id': p.id, 'name': p.name, 'price': str(p.price), 'brand': p.brand} for p in products]
@@ -38,6 +43,8 @@ def test_products(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    # Health check endpoint
+    path('health/', health_check, name='health_check'),
     # Debug endpoints
     path('debug/products/', debug_products, name='debug_products'),
     path('test/', test_products, name='test_products'),
