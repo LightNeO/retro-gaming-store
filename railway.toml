@@ -10,4 +10,4 @@ restartPolicyMaxRetries = 10
 
 [deploy.variables]
 DEBUG = "False"
-ALLOWED_HOSTS = "web-production-c47e.up.railway.app,localhost,127.0.0.1" 
+ALLOWED_HOSTS = "web-production-c47e.up.railway.app,localhost,127.0.0.1,healthcheck.railway.app,*.railway.app" 
