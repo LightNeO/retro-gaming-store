@@ -10,7 +10,7 @@ async function refreshToken() {
     }
 
     try {
-        const response = await fetch('/api/auth/token/refresh/', {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/token/refresh/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ function fetchCart() {
     }
 
     console.log('Fetching cart...');
-    makeAuthenticatedRequest('/api/cart/')
+    makeAuthenticatedRequest(`${CONFIG.API_BASE_URL}/cart/`)
     .then(res => res.json())
     .then(data => {
         console.log('Cart data received:', data);
@@ -203,7 +203,7 @@ function updateCartItem(id, quantity) {
         return;
     }
 
-    makeAuthenticatedRequest(`/api/cart/${id}/`, {
+    makeAuthenticatedRequest(`${CONFIG.API_BASE_URL}/cart/${id}/`, {
         method: 'PATCH',
         body: JSON.stringify({ quantity })
     })
@@ -227,7 +227,7 @@ function removeCartItem(id) {
         return;
     }
 
-    makeAuthenticatedRequest(`/api/cart/${id}/`, {
+    makeAuthenticatedRequest(`${CONFIG.API_BASE_URL}/cart/${id}/`, {
         method: 'DELETE'
     })
     .then(res => {
@@ -251,7 +251,7 @@ function removeCartItemNoUpdate(id) {
         return;
     }
 
-    makeAuthenticatedRequest(`/api/cart/${id}/`, {
+    makeAuthenticatedRequest(`${CONFIG.API_BASE_URL}/cart/${id}/`, {
         method: 'DELETE'
     }); // No fetchCart() call!
 }
