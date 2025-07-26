@@ -41,13 +41,8 @@
 
 {% block scripts %}
 <script>
-    // Configuration for API base URL
-    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://127.0.0.1:8000/api' 
-        : 'https://your-backend-url.com/api'; // Update this with your actual backend URL
-
     // Load featured products
-    fetch(`${API_BASE_URL}/products/?ordering=-rating&page_size=3`)
+    fetch(`${CONFIG.API_BASE_URL}/products/?ordering=-rating&page_size=3`)
     .then(res => res.json())
     .then(products => {
         const container = document.getElementById('featured-products');
