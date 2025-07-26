@@ -34,6 +34,14 @@ CORS_ALLOW_CREDENTIALS = True
 DEFAULT_ALLOWED_HOSTS = '127.0.0.1,localhost,testserver,healthcheck.railway.app,*.railway.app,web-production-c47e.up.railway.app'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
 
+# CSRF settings for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-c47e.up.railway.app',
+    'https://*.railway.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
 
 # Application definition
 
