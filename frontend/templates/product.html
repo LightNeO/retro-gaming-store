@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <img id="product-image" src="" alt="Product Image" class="img-fluid rounded" style="max-height: 400px; object-fit: cover;">
+    </div>
+    <div class="col-md-6">
+        <h2 id="product-name" style="color:#8be9fd;"></h2>
+        <p id="product-brand" class="text-muted"></p>
+        <p id="product-release-year"></p>
+        <p id="product-price"></p>
+        
+        <!-- Rating Section -->
+        <div class="mb-3">
+            <h5 style="color:#ff79c6;">Rating</h5>
+            <div id="rating-display">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="stars me-2">
+                        {% for i in "12345" %}
+                            <span class="star" data-rating="{{ i }}" style="cursor: pointer; font-size: 1.5em; color: #666;">★</span>
+                        {% endfor %}
+                    </div>
+                    <span id="average-rating" class="ms-2">0.0/5</span>
+                    <span id="rating-count" class="ms-2" style="color: #a855f7;">(0 ratings)</span>
+                </div>
+                <div id="user-rating-section" style="display: none;">
+                    <small style="color: #a855f7;">Your rating: <span id="user-rating-text"></span></small>
+                    <button id="change-rating-btn" class="btn btn-sm btn-outline-secondary ms-2">Change Rating</button>
+                </div>
+                <div id="rate-product-section">
+                    <small style="color: #ff79c6;">Rate this product:</small>
+                    <div class="rating-stars mt-1">
+                        {% for i in "12345" %}
+                            <span class="rating-star" data-rating="{{ i }}" style="cursor: pointer; font-size: 1.2em; color: #666;">★</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <p><strong>Description:</strong></p>
+        <p id="product-description"></p>
+        
+        <!-- Add to Cart Section -->
+        <div class="card card-retro p-3 mb-3">
+            <h5 style="color:#ff79c6;">Add to Cart</h5>
+            <div class="row">
+                <div class="col-6">
+                    <label for="quantity" class="form-label">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" value="1" min="1" max="10" data-qa="quantity-input">
+                </div>
+                <div class="col-6">
+                    <label class="form-label">&nbsp;</label>
+                    <button id="add-to-cart-btn" class="btn btn-pixel w-100" data-qa="add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comments Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h3 style="color:#ff79c6;">Comments</h3>
+        
+        <!-- Add Comment Form -->
+        <div class="card card-retro p-3 mb-3">
+            <h5>Add a Comment</h5>
+            <form id="comment-form">
+                <div class="mb-3">
+                    <textarea class="form-control" id="comment-text" rows="3" placeholder="Share your thoughts about this product..." data-qa="comment-text" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-pixel" data-qa="submit-comment-btn">Post Comment</button>
+            </form>
+        </div>
+        
+        <!-- Comments List -->
+        <div id="comments-container">
+            <p class="text-center">Loading comments...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add QA/test hooks to product page elements
+document.getElementById('quantity').setAttribute('data-qa', 'quantity-input');
+document.getElementById('add-to-cart-btn').setAttribute('data-qa', 'add-to-cart-btn');
+document.getElementById('comment-text').setAttribute('data-qa', 'comment-text');
+document.getElementById('comment-form').setAttribute('data-qa', 'comment-form');
+
+// Add QA hooks to rating elements
+document.querySelectorAll('.rating-star').forEach((star, index) => {
+    star.setAttribute('data-qa', `rating-star-${index + 1}`);
+});
+document.getElementById('change-rating-btn').setAttribute('data-qa', 'change-rating-btn');
+document.getElementById('user-rating-section').setAttribute('data-qa', 'user-rating-section');
+document.getElementById('rate-product-section').setAttribute('data-qa', 'rate-product-section');
+
+// Get product ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get('id');
+
+// Rating functionality
+let userRating = null;
+let averageRating = 0;
+let ratingCount = 0;
+
+function updateStars(stars, rating, isInteractive = false) {
+    stars.forEach((star, index) => {
+        const starRating = index + 1;
+        if (starRating <= rating) {
+            star.style.color = '#ffd700'; // Gold for filled stars
+        } else {
+            star.style.color = '#666'; // Gray for empty stars
+        }
+        if (isInteractive) {
+            star.style.cursor = 'pointer';
+        }
+    });
+}
+
+function loadUserRating() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // User is not logged in, show rating input section
+        document.getElementById('user-rating-section').style.display = 'none';
+        document.getElementById('rate-product-section').style.display = 'block';
+        return;
+    }
+
+    fetch(`/api/products/${productId}/ratings/`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(res => {
+        if (res.status === 401) {
+            // Token expired or invalid, clear it and show login prompt
+            localStorage.removeItem('token');
+            document.getElementById('user-rating-section').style.display = 'none';
+            document.getElementById('rate-product-section').style.display = 'block';
+            return;
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data && data.user_rating) {
+            userRating = data.user_rating.score;
+            document.getElementById('user-rating-text').textContent = `${userRating}/5`;
+            document.getElementById('user-rating-section').style.display = 'block';
+            document.getElementById('rate-product-section').style.display = 'none';
+            
+            // Update user rating stars
+            const userStars = document.querySelectorAll('.rating-star');
+            updateStars(userStars, userRating);
+        } else {
+            // No rating yet, show rating input section
+            document.getElementById('user-rating-section').style.display = 'none';
+            document.getElementById('rate-product-section').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        // Handle any other errors gracefully
+        console.log('User not logged in or rating not available');
+        document.getElementById('user-rating-section').style.display = 'none';
+        document.getElementById('rate-product-section').style.display = 'block';
+    });
+}
+
+function submitRating(rating) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in to rate products.');
+        return;
+    }
+
+    // Buggy behavior: randomly fail rating submission (for QA testing)
+    if (Math.random() < 0.15) {
+        alert('Rating submission failed due to a random bug (for QA testing).');
+        return;
+    }
+
+    fetch(`/api/products/${productId}/ratings/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ score: rating })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            userRating = rating;
+            document.getElementById('user-rating-text').textContent = `${rating}/5`;
+            document.getElementById('user-rating-section').style.display = 'block';
+            document.getElementById('rate-product-section').style.display = 'none';
+            
+            // Update average rating
+            averageRating = data.average_rating;
+            ratingCount = data.rating_count;
+            document.getElementById('average-rating').textContent = `${averageRating.toFixed(1)}/5`;
+            document.getElementById('rating-count').textContent = `(${ratingCount} ratings)`;
+            
+            // Update display stars
+            const displayStars = document.querySelectorAll('.star');
+            updateStars(displayStars, Math.round(averageRating));
+            
+            alert('Rating submitted successfully!');
+        } else {
+            alert(data.error || 'Failed to submit rating.');
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting rating:', error);
+        alert('Failed to submit rating. Please try again.');
+    });
+}
+
+// Event listeners for rating stars
+document.querySelectorAll('.rating-star').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = parseInt(this.dataset.rating);
+        submitRating(rating);
+    });
+    
+    star.addEventListener('mouseenter', function() {
+        const rating = parseInt(this.dataset.rating);
+        const stars = document.querySelectorAll('.rating-star');
+        updateStars(stars, rating);
+    });
+    
+    star.addEventListener('mouseleave', function() {
+        const stars = document.querySelectorAll('.rating-star');
+        updateStars(stars, userRating || 0);
+    });
+});
+
+// Change rating button
+document.getElementById('change-rating-btn').addEventListener('click', function() {
+    document.getElementById('user-rating-section').style.display = 'none';
+    document.getElementById('rate-product-section').style.display = 'block';
+});
+
+// Initialize rating display
+document.addEventListener('DOMContentLoaded', function() {
+    // Load product details and rating data
+    fetch(`/api/products/${productId}/`)
+    .then(res => res.json())
+    .then(product => {
+        document.title = product.name;
+        document.getElementById('product-image').src = product.image;
+        document.getElementById('product-name').textContent = product.name;
+        document.getElementById('product-brand').innerHTML = `<span style="color: #ff79c6;">${product.brand} • ${product.platform}</span>`;
+        document.getElementById('product-release-year').innerHTML = `<strong>Release Year:</strong> ${product.release_year}`;
+        document.getElementById('product-price').innerHTML = `<strong>Price:</strong> <span style="color:#50fa7b; font-size: 1.2em;">$${product.price}</span>`;
+        document.getElementById('product-description').textContent = product.description;
+
+        averageRating = product.rating || 0;
+        ratingCount = product.ratings_count || 0;
+        
+        // Update rating display
+        document.getElementById('average-rating').textContent = `${averageRating.toFixed(1)}/5`;
+        document.getElementById('rating-count').textContent = `(${ratingCount} ratings)`;
+        
+        // Update display stars
+        const displayStars = document.querySelectorAll('.star');
+        updateStars(displayStars, Math.round(averageRating));
+    })
+    .catch(error => console.error('Error loading product:', error));
+    
+    loadUserRating();
+});
+
+// Load comments
+fetch(`/api/products/${productId}/comments/`)
+.then(res => res.json())
+.then(comments => {
+    const container = document.getElementById('comments-container');
+    if (comments.length === 0) {
+        container.innerHTML = '<p class="text-muted">No comments yet. Be the first to comment!</p>';
+        return;
+    }
+    
+    container.innerHTML = comments.map(comment => `
+        <div class="card card-retro p-3 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>${comment.user_name}</strong>
+                    <small class="text-muted ms-2">${new Date(comment.created_at).toLocaleDateString()}</small>
+                </div>
+                ${comment.can_delete ? `<button class="btn btn-sm btn-outline-danger delete-comment" data-comment-id="${comment.id}">Delete</button>` : ''}
+            </div>
+            <p class="mt-2 mb-0">${comment.text}</p>
+        </div>
+    `).join('');
+    
+    // Add delete event listeners
+    document.querySelectorAll('.delete-comment').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            deleteComment(commentId);
+        });
+    });
+})
+.catch(error => {
+    console.error('Error loading comments:', error);
+    document.getElementById('comments-container').innerHTML = '<p class="text-danger">Error loading comments.</p>';
+});
+
+// Add to cart functionality
+document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        alert('Please log in to add items to cart.');
+        return;
+    }
+    
+    this.disabled = true;
+    this.textContent = 'Adding...';
+    
+    fetch('/api/cart/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            product: productId,
+            quantity: quantity
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert('Added to cart!');
+        this.disabled = false;
+        this.textContent = 'Add to Cart';
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        alert('Failed to add to cart. Please try again.');
+        this.disabled = false;
+        this.textContent = 'Add to Cart';
+    });
+});
+
+// Comment submission
+document.getElementById('comment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const text = document.getElementById('comment-text').value.trim();
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        alert('Please log in to comment.');
+        return;
+    }
+    
+    if (!text) {
+        alert('Please enter a comment.');
+        return;
+    }
+    
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Posting...';
+    
+    fetch(`/api/products/${productId}/comments/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ text: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.id) {
+            document.getElementById('comment-text').value = '';
+            // Reload comments
+            location.reload();
+        } else {
+            alert('Failed to post comment. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error posting comment:', error);
+        alert('Failed to post comment. Please try again.');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Post Comment';
+    });
+});
+
+function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    
+    const token = localStorage.getItem('token');
+    fetch(`/api/comments/${commentId}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(res => {
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert('Failed to delete comment.');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment.');
+    });
+}
+</script>
+{% endblock %} 

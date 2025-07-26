@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4" style="color:#8be9fd;">Login</h2>
+        <form id="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <div id="login-error" class="text-danger mb-2"></div>
+            <button type="submit" class="btn btn-pixel w-100">Login</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="/register/" style="color:#ff79c6;">Don't have an account? Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('login-error');
+    const submitBtn = document.querySelector('#login-form button[type="submit"]');
+    
+    // Clear previous errors
+    errorDiv.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+
+    console.log('Attempting login for:', username);
+
+    fetch('/api/auth/token/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(res => {
+        console.log('Login response status:', res.status);
+        return res.json().then(data => ({ status: res.status, data }));
+    })
+    .then(({ status, data }) => {
+        if (status === 200 && data.access) {
+            console.log('Login successful');
+            localStorage.setItem('token', data.access);
+            localStorage.setItem('refresh', data.refresh);
+            localStorage.setItem('username', username); // Store username for comment functionality
+            
+            // Update navigation immediately
+            if (typeof updateNavigation === 'function') {
+                updateNavigation();
+            }
+            
+            errorDiv.innerHTML = '<span class="text-success">Login successful! Redirecting...</span>';
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        } else {
+            console.log('Login failed:', data);
+            let errorMessage = 'Invalid credentials.';
+            if (data.detail) {
+                errorMessage = data.detail;
+            } else if (data.error) {
+                errorMessage = data.error;
+            } else if (data.non_field_errors) {
+                errorMessage = data.non_field_errors[0];
+            }
+            errorDiv.textContent = errorMessage;
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        errorDiv.textContent = 'Login failed. Please try again.';
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-center mb-4" style="color:#8be9fd;">Your Profile</h2>
+        <div id="profile-info" class="mb-4">
+            <div class="text-center">
+                <p>Loading profile...</p>
+            </div>
+        </div>
+        <div class="card card-retro p-3 mb-4">
+            <h5>Update Profile Information</h5>
+            <form id="profile-update-form">
+                <div class="mb-2">
+                    <label for="update-username" class="form-label">New Username</label>
+                    <input type="text" class="form-control" id="update-username" data-qa="update-username">
+                </div>
+                <div class="mb-2">
+                    <label for="update-email" class="form-label">New Email</label>
+                    <input type="email" class="form-control" id="update-email" data-qa="update-email">
+                </div>
+                <div class="mb-2">
+                    <label for="update-password" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="update-password" data-qa="update-password">
+                </div>
+                <div id="profile-update-error" class="text-danger mb-2" data-qa="profile-update-error"></div>
+                <button type="submit" class="btn btn-pixel" id="profile-update-btn" data-qa="profile-update-btn">Update</button>
+            </form>
+        </div>
+        <h4 style="color:#ff79c6;">Order History</h4>
+        <div id="orders-loading" class="text-center">
+            <p>Loading orders...</p>
+        </div>
+        <table class="table table-dark table-striped" id="orders-table" data-qa="orders-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<!-- Order Detail Modal -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background-color: #000000; color: #ffffff; border: 1px solid #333;">
+      <div class="modal-header" style="background-color: #000000; border-bottom: 1px solid #333;">
+        <h5 class="modal-title" id="orderDetailModalLabel" style="color: #ffffff;">Order Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="order-detail-body" data-qa="order-detail-body" style="background-color: #000000; color: #ffffff;">
+        <!-- Order details will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+function parseJwt(token) {
+    if (!token) return {};
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (error) {
+        console.error('Error parsing JWT:', error);
+        return {};
+    }
+}
+
+function showOrderDetail(orderId) {
+    console.log('Showing order detail for:', orderId);
+    fetch(`/api/orders/${orderId}/`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    })
+    .then(res => {
+        console.log('Order detail response status:', res.status);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(order => {
+        console.log('Order detail data:', order);
+        console.log('Order items:', order.items);
+        let itemsHtml = '';
+        if (order.items && order.items.length > 0) {
+            order.items.forEach(item => {
+                const itemTotal = (item.price * item.quantity).toFixed(2);
+                itemsHtml += `<li>${item.product_name} - $${item.price} x ${item.quantity} = $${itemTotal}</li>`;
+            });
+        } else {
+            itemsHtml = '<li><em>Order items not available (order created before recent update)</em></li>';
+        }
+        
+        document.getElementById('order-detail-body').innerHTML = `
+            <strong>Order #:</strong> ${order.id}<br>
+            <strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}<br>
+            <strong>Status:</strong> ${order.status}<br>
+            <strong>Total:</strong> $${order.total_price}<br>
+            <strong>Shipping Name:</strong> ${order.shipping_name || 'N/A'}<br>
+            <strong>Shipping Email:</strong> ${order.shipping_email || 'N/A'}<br>
+            <strong>Shipping Phone:</strong> ${order.shipping_phone || 'N/A'}<br>
+            <strong>Shipping Address:</strong> ${order.shipping_address || 'N/A'}<br>
+            <strong>Items:</strong><ul>${itemsHtml}</ul>
+        `;
+        var modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+        modal.show();
+    })
+    .catch(error => {
+        console.error('Error fetching order detail:', error);
+        document.getElementById('order-detail-body').innerHTML = '<p class="text-danger">Error loading order details.</p>';
+        var modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+        modal.show();
+    });
+}
+
+// Make function globally available
+window.showOrderDetail = showOrderDetail;
+
+// Profile update logic with buggy behavior for QA
+const profileForm = document.getElementById('profile-update-form');
+if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('update-username').value;
+        const email = document.getElementById('update-email').value;
+        const password = document.getElementById('update-password').value;
+        const errorDiv = document.getElementById('profile-update-error');
+        const submitBtn = document.getElementById('profile-update-btn');
+        
+        errorDiv.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating...';
+
+        console.log('Attempting profile update');
+
+        // Buggy behavior: randomly fail
+        if (Math.random() < 0.3) {
+            errorDiv.textContent = 'Update failed due to a random bug (for QA testing).';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Update';
+            return;
+        }
+
+        const token = getToken();
+        const userId = parseJwt(token).user_id;
+
+        if (!userId) {
+            errorDiv.textContent = 'Authentication error. Please log in again.';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Update';
+            return;
+        }
+
+        let updatePromises = [];
+        let successMessages = [];
+
+        // Update username
+        if (username) {
+            updatePromises.push(
+                fetch(`/api/users/${userId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ username })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.username) {
+                        successMessages.push('Username updated successfully!');
+                        // Update the displayed username in profile info
+                        const profileInfo = document.getElementById('profile-info');
+                        const currentHtml = profileInfo.innerHTML;
+                        profileInfo.innerHTML = currentHtml.replace(
+                            /<strong>Username:<\/strong> [^<]+/,
+                            `<strong>Username:</strong> ${data.username}`
+                        );
+                    } else {
+                        throw new Error(data.error || 'Username update failed.');
+                    }
+                })
+            );
+        }
+
+        // Update email
+        if (email) {
+            updatePromises.push(
+                fetch(`/api/users/${userId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ email })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.email) {
+                        successMessages.push('Email updated successfully!');
+                        // Update the displayed email in profile info
+                        const profileInfo = document.getElementById('profile-info');
+                        const currentHtml = profileInfo.innerHTML;
+                        profileInfo.innerHTML = currentHtml.replace(
+                            /<strong>Email:<\/strong> [^<]+/,
+                            `<strong>Email:</strong> ${data.email}`
+                        );
+                    } else {
+                        throw new Error(data.error || 'Email update failed.');
+                    }
+                })
+            );
+        }
+
+        // Update password
+        if (password) {
+            updatePromises.push(
+                fetch(`/api/users/${userId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ password })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        successMessages.push('Password updated successfully!');
+                    } else {
+                        throw new Error(data.error || 'Password update failed.');
+                    }
+                })
+            );
+        }
+
+        // Wait for all updates to complete
+        Promise.all(updatePromises)
+            .then(() => {
+                if (successMessages.length > 0) {
+                    errorDiv.innerHTML = `<span class="text-success">${successMessages.join('<br>')}</span>`;
+                    // Clear form fields after successful update
+                    document.getElementById('update-username').value = '';
+                    document.getElementById('update-email').value = '';
+                    document.getElementById('update-password').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Update error:', error);
+                errorDiv.textContent = error.message || 'Update failed.';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update';
+            });
+    });
+}
+
+function loadOrders() {
+    const token = getToken();
+    if (!token) {
+        console.error('No token found for orders, redirecting to login');
+        window.location.href = '/login/';
+        return;
+    }
+
+    fetch('/api/orders/', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(res => {
+        console.log('Orders response status:', res.status);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(data => {
+        console.log('Orders data:', data);
+        let orders = Array.isArray(data) ? data : (data.results || []);
+        
+        // Buggy behavior: sometimes show empty order history even if orders exist
+        if (orders.length && Math.random() < 0.2) {
+            orders = [];
+        }
+        
+        const tbody = document.getElementById('orders-table').getElementsByTagName('tbody')[0];
+        const ordersTable = document.getElementById('orders-table');
+        const ordersLoading = document.getElementById('orders-loading');
+        
+        tbody.innerHTML = '';
+        
+        if (orders.length === 0) {
+            ordersLoading.innerHTML = '<p>No orders found.</p>';
+        } else {
+            ordersLoading.style.display = 'none';
+            ordersTable.style.display = 'table';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-qa', 'order-row');
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${new Date(order.created_at).toLocaleString()}</td>
+                    <td>${order.status}</td>
+                    <td>$${order.total_price}</td>
+                    <td><button class="btn btn-sm btn-pixel" data-qa="order-detail-btn" onclick="showOrderDetail(${order.id})">View</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching orders:', error);
+        document.getElementById('orders-loading').innerHTML = '<p class="text-danger">Error loading orders.</p>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Profile page loaded');
+    
+    const token = getToken();
+    if (!token) {
+        console.error('No token found, redirecting to login');
+        window.location.href = '/login/';
+        return;
+    }
+
+    // Get user info from JWT token for user_id
+    const userData = parseJwt(token);
+    console.log('User data from JWT:', userData);
+    
+    if (userData.user_id) {
+        // Fetch user details from API
+        fetch(`/api/users/${userData.user_id}/`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(userInfo => {
+            console.log('User info from API:', userInfo);
+            // Display user info from API
+            document.getElementById('profile-info').innerHTML = `
+                <div class='card card-retro p-3 mb-3'>
+                    <strong>Username:</strong> ${userInfo.username || 'Unknown'}<br>
+                    <strong>Email:</strong> ${userInfo.email || 'Not available'}<br>
+                    <strong>User ID:</strong> ${userData.user_id}
+                </div>
+            `;
+            
+            // Pre-fill the form fields with current values
+            if (userInfo.username) {
+                document.getElementById('update-username').placeholder = userInfo.username;
+            }
+            if (userInfo.email) {
+                document.getElementById('update-email').placeholder = userInfo.email;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user info:', error);
+            // Fallback to JWT data if API fails
+            document.getElementById('profile-info').innerHTML = `
+                <div class='card card-retro p-3 mb-3'>
+                    <strong>Username:</strong> ${userData.username || 'Unknown'}<br>
+                    <strong>Email:</strong> ${userData.email || 'Not available'}<br>
+                    <strong>User ID:</strong> ${userData.user_id}
+                </div>
+            `;
+        });
+        
+        // Load orders
+        loadOrders();
+    } else {
+        console.error('No user_id in token');
+        document.getElementById('profile-info').innerHTML = `
+            <div class='card card-retro p-3 mb-3'>
+                <p class='text-danger'>Error: Could not identify user.</p>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,26 @@
+/* Modern Retro Theme */
+.pixel-border {
+    border: 4px solid #ff79c6;
+    box-shadow: 0 0 0 4px #282a36, 0 0 0 8px #8be9fd;
+    border-radius: 8px;
+}
+.btn-pixel {
+    font-family: 'Press Start 2P', monospace;
+    background: #8be9fd;
+    color: #181825;
+    border: 2px solid #ff79c6;
+    box-shadow: 2px 2px 0 #ff79c6;
+    transition: all 0.1s;
+}
+.btn-pixel:hover {
+    background: #ff79c6;
+    color: #fff;
+    border-color: #8be9fd;
+    box-shadow: 2px 2px 0 #8be9fd;
+}
+.card-retro {
+    background: #282a36;
+    border: 2px solid #8be9fd;
+    color: #f8f8f2;
+    font-family: 'Press Start 2P', monospace;
+} 

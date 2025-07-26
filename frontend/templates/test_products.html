@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h2 class="mb-3" style="color:#8be9fd;">Test Products (Direct from Database)</h2>
+        <p>This page shows products directly from Django without JavaScript</p>
+    </div>
+</div>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-4">
+        <div class="card card-retro h-100">
+            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height:200px;object-fit:contain;background:#222;">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.brand }} ({{ product.release_year }})</p>
+                <p class="card-text">${{ product.price }}</p>
+                <p class="card-text">⭐ {{ product.rating }}</p>
+                <a href="/product/?id={{ product.id }}" class="btn btn-pixel">View</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <p class="text-danger">No products found in database!</p>
+    </div>
+    {% endfor %}
+</div>
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="/" class="btn btn-pixel">Back to Home</a>
+        <a href="/products/" class="btn btn-pixel">Go to Products Page</a>
+    </div>
+</div>
+{% endblock %} 
