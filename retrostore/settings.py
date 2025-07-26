@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +27,15 @@ SECRET_KEY = 'django-insecure-%_yn)8xj8y2%405wrq(mr$o^qz7-2_ttj^c@xqqzkkb4+mvbn!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+# CORS settings for production
+CORS_ALLOWED_ORIGINS = [
+    "https://lightneo.github.io",
+    "https://*.github.io",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # Disable for production security
 
 # Get allowed hosts from environment or use defaults
 DEFAULT_ALLOWED_HOSTS = '127.0.0.1,localhost,testserver,healthcheck.railway.app,*.railway.app,web-production-c47e.up.railway.app'
@@ -166,6 +173,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
@@ -174,13 +182,14 @@ REST_FRAMEWORK = {
     ],
 }
 
-# JWT configuration (temporarily disabled for deployment)
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-#     'ROTATE_REFRESH_TOKENS': True,
-#     'BLACKLIST_AFTER_ROTATION': True,
-# }
+# JWT configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Retro Gaming Store API',
