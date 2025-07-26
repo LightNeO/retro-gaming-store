@@ -33,6 +33,38 @@ A full-stack e-commerce website for selling retro gaming consoles, built with Dj
 - **API Documentation**: drf-spectacular (Swagger/OpenAPI)
 - **Database**: SQLite (development), PostgreSQL ready
 
+## 🚀 Quick Deployment
+
+### Option 1: Automated Deployment (Recommended)
+
+**Windows Users:**
+```bash
+deploy.bat
+```
+
+**Linux/Mac Users:**
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### Option 2: Manual Deployment
+
+1. **Create GitHub repository**
+2. **Push your code:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit: Retro Gaming Store"
+   git remote add origin https://github.com/YOUR_USERNAME/retro-gaming-store.git
+   git push -u origin main
+   ```
+3. **Enable GitHub Pages** in repository settings
+4. **Choose backend option** (see DEPLOYMENT.md for details)
+
+### Your site will be live at:
+`https://YOUR_USERNAME.github.io/retro-gaming-store`
+
 ## 🚀 Quick Start
 
 ### Prerequisites
