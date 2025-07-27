@@ -339,8 +339,8 @@ All major interactive elements have `data-qa` attributes for easy automation:
 ## 📁 Project Structure
 
 ```
-qa4autotest/
-├── retrostore/          # Django project settings
+retro-gaming-store/
+├── retrostore/         # Django project settings
 ├── store/              # Products, ratings, comments
 │   ├── models.py       # Product, Rating, Comment models
 │   ├── views.py        # ProductViewSet, RatingViewSet, CommentViewSet
