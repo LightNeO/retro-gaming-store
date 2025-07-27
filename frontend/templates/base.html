@@ -106,11 +106,32 @@
         
         .navbar-nav .nav-item:not(:last-child)::after {
             content: '|';
-            color: var(--retro-purple);
+            color: var(--retro-bg);
             margin: 0 0.5rem;
             font-weight: bold;
             display: flex;
             align-items: center;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-separator {
+            content: '|';
+            color: var(--retro-bg);
+            margin: 0 0.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-separator::after {
+            content: '|';
+            color: var(--retro-bg);
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .card-retro {
@@ -287,6 +308,10 @@
                 display: none;
             }
             
+            .navbar-separator {
+                display: none;
+            }
+            
             .footer .social-links {
                 justify-content: center;
             }
@@ -299,6 +324,7 @@
             <a class="navbar-brand" href="/">
                 <i class="fas fa-gamepad me-2"></i>RETRO STORE
             </a>
+            <div class="navbar-separator"></div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -315,6 +341,7 @@
                         </a>
                     </li>
                 </ul>
+                <div class="navbar-separator"></div>
                 <ul class="navbar-nav" id="auth-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="/login/">
