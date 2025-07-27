@@ -25,25 +25,77 @@
             color: var(--retro-fg);
             font-family: 'Press Start 2P', monospace;
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
         }
         
         .navbar {
             background: linear-gradient(135deg, var(--retro-pink), var(--retro-cyan)) !important;
             border-bottom: 3px solid var(--retro-purple);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 1rem 0;
         }
         
         .navbar-brand {
             font-weight: bold;
             color: var(--retro-bg) !important;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
         }
         
         .nav-link {
             color: var(--retro-bg) !important;
             font-weight: bold;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
         }
         
         .nav-link:hover {
             color: var(--retro-purple) !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .navbar-nav .nav-item {
+            margin: 0 0.25rem;
+        }
+        
+        .navbar-nav .nav-item:not(:last-child)::after {
+            content: '|';
+            color: var(--retro-purple);
+            margin: 0 0.5rem;
+            font-weight: bold;
         }
         
         .card-retro {
@@ -131,43 +183,170 @@
             border-color: var(--retro-purple);
         }
         
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, var(--retro-purple), var(--retro-pink));
+            border-top: 3px solid var(--retro-cyan);
+            margin-top: 4rem;
+            padding: 3rem 0 1rem 0;
+            color: var(--retro-bg);
+        }
+        
+        .footer h5 {
+            color: var(--retro-bg);
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer p, .footer a {
+            color: var(--retro-bg);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: var(--retro-cyan);
+            transform: translateX(5px);
+        }
+        
+        .footer .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .footer .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .footer .social-links a:hover {
+            background: var(--retro-cyan);
+            transform: translateY(-3px) rotate(360deg);
+            border-color: var(--retro-bg);
+        }
+        
+        .footer-bottom {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 0;
+            margin-top: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-bottom p {
+            margin: 0;
+            font-size: 0.8rem;
+        }
+        
         /* Hidden element for QA automation */
         #QA_PASS {
             display: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar-nav .nav-item:not(:last-child)::after {
+                display: none;
+            }
+            
+            .footer .social-links {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/">RETRO STORE</a>
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-gamepad me-2"></i>RETRO STORE
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/products/">Products</a>
+                        <a class="nav-link" href="/products/">
+                            <i class="fas fa-list me-1"></i>Products
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/cart/">Cart</a>
+                        <a class="nav-link" href="/cart/">
+                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                        </a>
                     </li>
                 </ul>
                 <ul class="navbar-nav" id="auth-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/login/">Login</a>
+                        <a class="nav-link" href="/login/">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/register/">Register</a>
+                        <a class="nav-link" href="/register/">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
+    <div class="main-content">
+        <div class="container mt-4">
+            {% block content %}{% endblock %}
+        </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-store me-2"></i>Retro Gaming Store</h5>
+                    <p>Your ultimate destination for classic gaming consoles and retro gaming experiences. We bring back the golden age of gaming with authentic, tested, and guaranteed quality products.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" title="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Contact Info</h5>
+                    <p><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@retrogamingstore.com</p>
+                    <p><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM EST</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>123 Retro Street, Gaming City, GC 12345</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-info-circle me-2"></i>Quick Links</h5>
+                    <p><a href="/products/"><i class="fas fa-chevron-right me-2"></i>All Products</a></p>
+                    <p><a href="/cart/"><i class="fas fa-chevron-right me-2"></i>Shopping Cart</a></p>
+                    <p><a href="/login/"><i class="fas fa-chevron-right me-2"></i>Customer Login</a></p>
+                    <p><a href="/register/"><i class="fas fa-chevron-right me-2"></i>Create Account</a></p>
+                    <p><a href="/admin/"><i class="fas fa-chevron-right me-2"></i>Admin Panel</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2024 Retro Gaming Store. All rights reserved. | Designed with <i class="fas fa-heart" style="color: var(--retro-red);"></i> for retro gaming enthusiasts</p>
+            </div>
+        </div>
+    </footer>
 
     <div id="QA_PASS"></div>
 
@@ -185,19 +364,27 @@
             if (token) {
                 authNav.innerHTML = `
                     <li class="nav-item">
-                        <a class="nav-link" href="/profile/">Profile</a>
+                        <a class="nav-link" href="/profile/">
+                            <i class="fas fa-user me-1"></i>Profile
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="logout()">Logout</a>
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
                     </li>
                 `;
             } else {
                 authNav.innerHTML = `
                     <li class="nav-item">
-                        <a class="nav-link" href="/login/">Login</a>
+                        <a class="nav-link" href="/login/">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/register/">Register</a>
+                        <a class="nav-link" href="/register/">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
                     </li>
                 `;
             }
