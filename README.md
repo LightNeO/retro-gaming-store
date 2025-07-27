@@ -6,6 +6,8 @@ A full-stack e-commerce website for selling retro gaming consoles, built with Dj
 
 ### Frontend
 - **Modern Retro Theme** with pixel-style fonts and nostalgic colors
+- **Enhanced Navigation** with visual separators and hover effects
+- **Comprehensive Footer** with contact info and social media links
 - **Responsive Design** using Bootstrap 5
 - **Product Catalog** with search, filter, and sort functionality
 - **Interactive Product Ratings** with 5-star system
@@ -28,7 +30,7 @@ A full-stack e-commerce website for selling retro gaming consoles, built with Dj
 ## 🛠️ Tech Stack
 
 - **Backend**: Django 5.2, Django REST Framework, PostgreSQL
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5, FontAwesome Icons
 - **Authentication**: JWT (djangorestframework-simplejwt)
 - **API Documentation**: drf-spectacular (Swagger/OpenAPI)
 - **Deployment**: Railway (Backend + Database)
@@ -102,14 +104,155 @@ This project is deployed on Railway. For deployment instructions, see [DEPLOYMEN
 - **Admin**: `admin` / `admin123`
 - **Test User**: `testuser` / `testpass123`
 
-### Recommended Test Scenarios
-1. **User Registration & Login**
-2. **Product Browsing & Search**
-3. **Cart Management**
-4. **Checkout Process**
-5. **Order History**
-6. **Product Ratings & Comments**
-7. **Admin Panel Operations**
+### Comprehensive Test Scenarios
+
+#### 1. **Navigation & UI Testing**
+- **Header Navigation**:
+  - Verify logo displays with gamepad icon
+  - Test navigation links (Products, Cart, Login, Register)
+  - Check visual separators between navigation sections
+  - Test hover effects on navigation items
+  - Verify responsive behavior on mobile devices
+  - Test authentication state changes (Login/Register vs Profile/Logout)
+
+- **Footer Testing**:
+  - Verify footer displays on all pages
+  - Test social media icons (Facebook, Twitter, Instagram, YouTube, Discord)
+  - Check hover effects on social icons (transparency, rotation, scaling)
+  - Verify contact information displays correctly
+  - Test quick links functionality
+  - Check responsive layout on mobile
+
+#### 2. **User Registration & Login**
+- **Registration Flow**:
+  - Test valid user registration
+  - Verify email validation (intentionally buggy)
+  - Test password strength requirements
+  - Check error message display
+  - Verify automatic login after registration
+
+- **Login Flow**:
+  - Test valid login credentials
+  - Test invalid credentials error handling
+  - Verify JWT token storage
+  - Test "Remember Me" functionality
+  - Check logout functionality
+
+#### 3. **Product Browsing & Search**
+- **Product Display**:
+  - Verify featured products on homepage
+  - Test product images loading (some intentionally broken)
+  - Check product details (name, price, rating, description)
+  - Test product filtering and sorting
+  - Verify search functionality (test "Atari" search bug)
+
+- **Product Details**:
+  - Test individual product page navigation
+  - Verify product information accuracy
+  - Test "Add to Cart" functionality
+  - Check product ratings display
+
+#### 4. **Shopping Cart Management**
+- **Cart Functionality**:
+  - Test adding items to cart
+  - Verify cart persistence across sessions
+  - Test quantity updates
+  - Check cart total calculations
+  - Test removing items from cart
+  - Verify cart empty state handling
+
+- **Cart Bugs to Test**:
+  - "Phantom" cart bug (20% chance total doesn't update)
+  - Cart items disappearing after adding
+  - Empty cart checkout attempts
+
+#### 5. **Checkout Process**
+- **Checkout Flow**:
+  - Test checkout with valid cart items
+  - Verify shipping information form
+  - Test payment information validation
+  - Check order confirmation
+  - Verify cart clearing after successful order
+
+- **Checkout Bugs to Test**:
+  - "Stuck" button bug (25% chance button disabled for 5 seconds)
+  - Empty cart checkout prevention
+  - Payment validation failures
+
+#### 6. **Order Management**
+- **Order History**:
+  - Test order creation and storage
+  - Verify order details display
+  - Check order status updates
+  - Test order history pagination
+
+- **Order Bugs to Test**:
+  - "Missing" order history bug (20% chance table empty)
+  - Order items not displaying correctly
+
+#### 7. **Product Ratings & Comments**
+- **Rating System**:
+  - Test rating submission (1-5 stars)
+  - Verify one rating per user restriction
+  - Check average rating calculations
+  - Test rating display on product pages
+
+- **Comment System**:
+  - Test comment submission
+  - Verify comment display and formatting
+  - Test comment deletion (own comments only)
+  - Check comment moderation
+
+- **Rating/Comment Bugs to Test**:
+  - Rating submission failure (15% chance)
+  - Comment submission errors
+  - Multiple ratings per user (intentional bug)
+
+#### 8. **Profile Management**
+- **Profile Updates**:
+  - Test username updates
+  - Verify email address changes
+  - Test password updates
+  - Check profile information persistence
+
+- **Profile Bugs to Test**:
+  - Random profile update failure (30% chance)
+  - Update error message display
+
+#### 9. **Admin Panel Operations**
+- **Admin Access**:
+  - Test admin login
+  - Verify product management
+  - Test order management
+  - Check user management
+  - Verify data export functionality
+
+#### 10. **Responsive Design Testing**
+- **Mobile Compatibility**:
+  - Test navigation on mobile devices
+  - Verify footer layout on small screens
+  - Check product cards responsiveness
+  - Test form usability on touch devices
+
+#### 11. **Performance & Error Handling**
+- **Error Scenarios**:
+  - Test 404 page handling
+  - Verify 500 error pages
+  - Check network error handling
+  - Test API timeout scenarios
+
+- **Performance**:
+  - Test page load times
+  - Verify image loading performance
+  - Check API response times
+
+### Test Hooks (data-qa attributes)
+All major interactive elements have `data-qa` attributes for easy automation:
+- Forms: `data-qa="login-form"`, `data-qa="register-form"`, `data-qa="checkout-form"`
+- Inputs: `data-qa="username"`, `data-qa="password"`, `data-qa="email"`
+- Buttons: `data-qa="login-btn"`, `data-qa="add-to-cart-btn"`, `data-qa="place-order-btn"`
+- Navigation: `data-qa="nav-products"`, `data-qa="nav-cart"`, `data-qa="nav-profile"`
+- Footer: `data-qa="social-facebook"`, `data-qa="social-twitter"`, `data-qa="contact-phone"`
 
 ## 📁 Project Structure
 
@@ -122,6 +265,15 @@ qa4autotest/
 ├── api/                # API endpoints and serializers
 ├── frontend/           # Static files (CSS, JS, images)
 │   ├── templates/      # Django templates
+│   │   ├── base.html   # Base template with navigation & footer
+│   │   ├── index.html  # Homepage
+│   │   ├── products.html # Product listing
+│   │   ├── product.html  # Product detail with ratings
+│   │   ├── cart.html   # Shopping cart
+│   │   ├── checkout.html # Checkout process
+│   │   ├── login.html  # Login form
+│   │   ├── register.html # Registration form
+│   │   └── profile.html # User profile and orders
 │   ├── css/           # Stylesheets
 │   ├── js/            # JavaScript files
 │   └── img/           # Product images
@@ -147,12 +299,32 @@ qa4autotest/
 - **Orders**: `/api/orders/`
 - **Users**: `/api/users/`
 
+## 🎨 UI/UX Features
+
+### Enhanced Navigation
+- **Visual Separators**: Clear separators between navigation sections
+- **Hover Effects**: Smooth animations and visual feedback
+- **Icon Integration**: FontAwesome icons for better visual appeal
+- **Responsive Design**: Mobile-friendly navigation with collapsible menu
+
+### Comprehensive Footer
+- **Contact Information**: Phone, email, hours, and address
+- **Social Media Links**: Facebook, Twitter, Instagram, YouTube, Discord
+- **Quick Links**: Direct navigation to important pages
+- **Interactive Elements**: Hover effects and animations
+
+### Retro Gaming Aesthetic
+- **Color Scheme**: Dark theme with vibrant pink, purple, and cyan accents
+- **Typography**: Pixel-style fonts for authentic retro feel
+- **Animations**: Smooth transitions and hover effects
+- **Icons**: Gaming-themed icons throughout the interface
+
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test thoroughly using the comprehensive test scenarios above
 5. Submit a pull request
 
 ## 📄 License
@@ -165,3 +337,8 @@ For issues and questions:
 1. Check the [DEPLOYMENT.md](DEPLOYMENT.md) for deployment help
 2. Review the API documentation at `/api/schema/swagger-ui/`
 3. Check the Django admin panel for data management
+4. Use the comprehensive test scenarios for debugging
+
+---
+
+**Happy Testing! 🎮🧪**
