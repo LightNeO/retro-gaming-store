@@ -248,11 +248,44 @@ This project is deployed on Railway. For deployment instructions, see [DEPLOYMEN
 
 ### Test Hooks (data-qa attributes)
 All major interactive elements have `data-qa` attributes for easy automation:
-- Forms: `data-qa="login-form"`, `data-qa="register-form"`, `data-qa="checkout-form"`
-- Inputs: `data-qa="username"`, `data-qa="password"`, `data-qa="email"`
-- Buttons: `data-qa="login-btn"`, `data-qa="add-to-cart-btn"`, `data-qa="place-order-btn"`
-- Navigation: `data-qa="nav-products"`, `data-qa="nav-cart"`, `data-qa="nav-profile"`
-- Footer: `data-qa="social-facebook"`, `data-qa="social-twitter"`, `data-qa="contact-phone"`
+
+#### **Navigation & Header**
+- **Brand**: `data-qa="nav-brand"` (logo/home link)
+- **Main Navigation**: `data-qa="nav-products"`, `data-qa="nav-cart"`
+- **Authentication**: `data-qa="nav-login"`, `data-qa="nav-register"`, `data-qa="nav-profile"`, `data-qa="nav-logout"`
+
+#### **Footer**
+- **Social Media**: `data-qa="social-facebook"`, `data-qa="social-twitter"`, `data-qa="social-instagram"`, `data-qa="social-youtube"`, `data-qa="social-discord"`
+- **Contact Info**: `data-qa="contact-phone"`, `data-qa="contact-email"`, `data-qa="contact-hours"`, `data-qa="contact-address"`
+- **Quick Links**: `data-qa="footer-products"`, `data-qa="footer-cart"`, `data-qa="footer-login"`, `data-qa="footer-register"`, `data-qa="footer-admin"`
+
+#### **Products Page**
+- **Product Cards**: `data-qa="product-card"` (each product container)
+- **View Buttons**: `data-qa="view-product-btn"` (each product's view link)
+- **Search & Filter**: `data-qa="search-form"`, `data-qa="search-input"`, `data-qa="sort-select"`
+
+#### **Product Detail Page**
+- **Add to Cart**: `data-qa="quantity-input"`, `data-qa="add-to-cart-btn"`
+- **Comments**: `data-qa="comment-form"`, `data-qa="comment-text"`, `data-qa="submit-comment-btn"`
+- **Rating System**: `data-qa="rating-star-1"` through `data-qa="rating-star-5"`, `data-qa="change-rating-btn"`, `data-qa="user-rating-section"`, `data-qa="rate-product-section"`
+
+#### **Shopping Cart**
+- **Cart Items**: `data-qa="cart-row"` (each cart item row)
+- **Quantity Controls**: `data-qa="cart-qty"` (quantity inputs)
+- **Remove Buttons**: `data-qa="cart-remove"` (remove item buttons)
+- **Item Totals**: `data-qa="cart-item-total"` (individual item totals)
+
+#### **Checkout Process**
+- **Form**: `data-qa="checkout-form"`
+- **Input Fields**: `data-qa="name"`, `data-qa="email"`, `data-qa="phone"`, `data-qa="address"`, `data-qa="card-number"`, `data-qa="card-expiry"`, `data-qa="card-cvv"`
+- **Submit Button**: `data-qa="place-order-btn"`
+
+#### **User Profile**
+- **Profile Form**: `data-qa="update-username"`, `data-qa="update-email"`, `data-qa="update-password"`, `data-qa="profile-update-btn"`, `data-qa="profile-update-error"`
+- **Order History**: `data-qa="orders-table"`, `data-qa="order-row"` (each order), `data-qa="order-detail-btn"`, `data-qa="order-detail-body"`
+
+#### **Global Elements**
+- **QA Pass Indicator**: `id="QA_PASS"` (hidden div for automation pass/fail signaling)
 
 ## 📁 Project Structure
 
