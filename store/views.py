@@ -1,15 +1,23 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import Avg
 from .models import Product, Rating, Comment
 from .serializers import ProductSerializer, RatingSerializer, CommentSerializer
+
+
+class ProductPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = ProductPagination
     filter_backends = []
     search_fields = ['name', 'brand', 'description']
     ordering_fields = ['price', 'release_year', 'rating']

@@ -44,10 +44,13 @@
     // Load featured products
     fetch(`${CONFIG.API_BASE_URL}/products/?ordering=-rating&page_size=3`)
     .then(res => res.json())
-    .then(products => {
+    .then(data => {
         const container = document.getElementById('featured-products');
         
-        if (products.length === 0) {
+        // Handle paginated response
+        const products = data.results || data;
+        
+        if (!products || products.length === 0) {
             container.innerHTML = '<p class="text-center text-muted">No products available</p>';
             return;
         }
