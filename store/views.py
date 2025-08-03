@@ -2,6 +2,8 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db.models import Avg
 from .models import Product, Rating, Comment
 from .serializers import ProductSerializer, RatingSerializer, CommentSerializer
@@ -18,7 +20,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = ProductPagination
-    filter_backends = []
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['name', 'brand', 'description']
     ordering_fields = ['price', 'release_year', 'rating']
     ordering = ['-release_year']

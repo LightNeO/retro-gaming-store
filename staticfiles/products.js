@@ -23,10 +23,6 @@ function fetchProducts(page = 1, search = '', ordering = '-release_year') {
             console.log('Products data:', data);
             let products = Array.isArray(data) ? data : (data.results || []);
             console.log('Number of products:', products.length);
-            // Buggy behavior: searching for 'Atari' sometimes returns no results
-            if (search.toLowerCase().includes('atari') && Math.random() < 0.3) {
-                products = [];
-            }
             renderProducts(products);
             renderPagination(data, page);
         })
@@ -59,22 +55,42 @@ function renderProducts(products) {
 }
 
 function renderPagination(data, page) {
-    // Since API returns all products directly, no pagination needed
     pagination.innerHTML = '';
-    return;
-    let html = '<ul class="pagination justify-content-center">';
-    for (let i = 1; i <= totalPages; i++) {
-        html += `<li class="page-item${i === page ? ' active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-    }
-    html += '</ul>';
-    pagination.innerHTML = html;
-    document.querySelectorAll('#pagination .page-link').forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            currentPage = parseInt(link.dataset.page);
-            fetchProducts(currentPage, searchInput.value, sortSelect.value);
+    
+    // Check if we have pagination data
+    if (data && data.count && data.results) {
+        const totalPages = Math.ceil(data.count / 10); // Assuming page size is 10
+        if (totalPages <= 1) return;
+        
+        let html = '<ul class="pagination justify-content-center">';
+        
+        // Previous button
+        if (page > 1) {
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="${page - 1}">Previous</a></li>`;
+        }
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item${i === page ? ' active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        }
+        
+        // Next button
+        if (page < totalPages) {
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="${page + 1}">Next</a></li>`;
+        }
+        
+        html += '</ul>';
+        pagination.innerHTML = html;
+        
+        // Add event listeners to pagination links
+        document.querySelectorAll('#pagination .page-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                currentPage = parseInt(link.dataset.page);
+                fetchProducts(currentPage, searchInput.value, sortSelect.value);
+            });
         });
-    });
+    }
 }
 
 searchForm.setAttribute('data-qa', 'search-form');

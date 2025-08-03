@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'api',
     # Third-party
     'rest_framework',
+    'django_filters',
     'drf_spectacular',
     'corsheaders',
 ]
