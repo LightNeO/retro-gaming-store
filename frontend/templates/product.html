@@ -273,40 +273,48 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load comments
-fetch(`${CONFIG.API_BASE_URL}/products/${productId}/comments/`)
-.then(res => res.json())
-.then(comments => {
-    const container = document.getElementById('comments-container');
-    if (comments.length === 0) {
-        container.innerHTML = '<p class="text-muted">No comments yet. Be the first to comment!</p>';
-        return;
-    }
-    
-    container.innerHTML = comments.map(comment => `
-        <div class="card card-retro p-3 mb-2">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <strong>${comment.user_name}</strong>
-                    <small class="text-muted ms-2">${new Date(comment.created_at).toLocaleDateString()}</small>
+function loadComments() {
+    fetch(`${CONFIG.API_BASE_URL}/products/${productId}/comments/`)
+    .then(res => res.json())
+    .then(comments => {
+        const container = document.getElementById('comments-container');
+        if (comments.length === 0) {
+            container.innerHTML = '<p class="text-muted">No comments yet. Be the first to comment!</p>';
+            return;
+        }
+        
+        container.innerHTML = comments.map(comment => `
+            <div class="card card-retro p-3 mb-2">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>${comment.user_name}</strong>
+                        <small class="text-muted ms-2">${new Date(comment.created_at).toLocaleDateString()}</small>
+                    </div>
+                    ${comment.can_delete ? `<button class="btn btn-sm btn-outline-danger delete-comment" data-comment-id="${comment.id}">Delete</button>` : ''}
                 </div>
-                ${comment.can_delete ? `<button class="btn btn-sm btn-outline-danger delete-comment" data-comment-id="${comment.id}">Delete</button>` : ''}
+                <p class="mt-2 mb-0">${comment.text}</p>
             </div>
-            <p class="mt-2 mb-0">${comment.text}</p>
-        </div>
-    `).join('');
-    
-    // Add delete event listeners
-    document.querySelectorAll('.delete-comment').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const commentId = this.dataset.commentId;
-            deleteComment(commentId);
+        `).join('');
+        
+        // Add delete event listeners
+        document.querySelectorAll('.delete-comment').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                deleteComment(commentId);
+            });
         });
+    })
+    .catch(error => {
+        console.error('Error loading comments:', error);
+        document.getElementById('comments-container').innerHTML = '<p class="text-danger">Error loading comments.</p>';
     });
-})
-.catch(error => {
-    console.error('Error loading comments:', error);
-    document.getElementById('comments-container').innerHTML = '<p class="text-danger">Error loading comments.</p>';
-});
+}
+
+// Make loadComments function globally available for external calls
+window.loadComments = loadComments;
+
+// Initial load of comments
+loadComments();
 
 // Add to cart functionality
 document.getElementById('add-to-cart-btn').addEventListener('click', function() {
@@ -378,8 +386,8 @@ document.getElementById('comment-form').addEventListener('submit', function(e) {
     .then(data => {
         if (data.id) {
             document.getElementById('comment-text').value = '';
-            // Reload comments
-            location.reload();
+            // Reload comments instead of full page reload
+            loadComments();
         } else {
             alert('Failed to post comment. Please try again.');
         }
@@ -404,7 +412,8 @@ function deleteComment(commentId) {
     })
     .then(res => {
         if (res.ok) {
-            location.reload();
+            // Reload comments instead of full page reload
+            loadComments();
         } else {
             alert('Failed to delete comment.');
         }

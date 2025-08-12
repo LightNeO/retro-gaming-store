@@ -36,6 +36,7 @@
 - ✅ Allows clearing all comments for testing purposes
 - ✅ Requires admin authentication (`permissions.IsAdminUser`)
 - ✅ Returns 204 No Content on success
+- ✅ Frontend updated to support comment reloading after API clear
 
 ## 🎯 **Working Features**
 
@@ -61,6 +62,7 @@
 - **Clear All Comments**: `DELETE /api/comments/clear_all/`
 - **Admin Authentication Required**
 - **Perfect for test setup and cleanup**
+- **Frontend Comment Reloading**: Automatic refresh after API operations
 
 ## 🚀 **Ready for Deployment**
 
@@ -102,4 +104,19 @@ def clear_comments_for_testing():
     # Clear all comments
     headers = {'Authorization': f'Bearer {token}'}
     requests.delete('/api/comments/clear_all/', headers=headers)
-``` 
+```
+
+### Comment Reloading After API Clear
+**Important**: After clearing comments via API, the frontend needs to be refreshed to show the updated state.
+
+**Options for QA Testing:**
+1. **Page Refresh**: `F5` or `Ctrl+R` - reloads entire page
+2. **JavaScript Function**: `window.loadComments()` - if on product page
+3. **Navigation**: Navigate away and back to product page
+4. **Browser Console**: Call `loadComments()` in DevTools
+
+**Frontend Changes Made:**
+- ✅ `loadComments()` function now globally accessible
+- ✅ `deleteComment()` uses `loadComments()` instead of page reload
+- ✅ Comment submission uses `loadComments()` instead of page reload
+- ✅ Better user experience with no full page refreshes 
