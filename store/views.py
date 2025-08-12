@@ -138,3 +138,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         
         comment.delete()
         return Response({'message': 'Comment deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['delete'], permission_classes=[permissions.IsAdminUser])
+    def clear_all(self, request):
+        """Admin-only: Clear all comments for testing purposes"""
+        Comment.objects.all().delete()
+        return Response({'message': 'All comments cleared successfully'}, status=status.HTTP_204_NO_CONTENT)

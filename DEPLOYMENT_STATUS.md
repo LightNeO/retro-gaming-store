@@ -31,6 +31,12 @@
 - ✅ Procfile configured for gunicorn
 - ✅ Environment variables properly configured for production
 
+### 5. **New QA Testing Endpoint**
+- ✅ Added `DELETE /api/comments/clear_all/` endpoint for admin users
+- ✅ Allows clearing all comments for testing purposes
+- ✅ Requires admin authentication (`permissions.IsAdminUser`)
+- ✅ Returns 204 No Content on success
+
 ## 🎯 **Working Features**
 
 ### Search Functionality
@@ -51,9 +57,14 @@
 - Page number navigation
 - Maintains search/sort state across pages
 
+### QA Testing Tools
+- **Clear All Comments**: `DELETE /api/comments/clear_all/`
+- **Admin Authentication Required**
+- **Perfect for test setup and cleanup**
+
 ## 🚀 **Ready for Deployment**
 
-The application is now ready for deployment with fully functional search and filters. All dependencies are installed, configurations are updated, and the system passes all checks.
+The application is now ready for deployment with fully functional search and filters, plus a new QA testing endpoint for clearing all comments.
 
 ### Deployment Commands
 ```bash
@@ -67,4 +78,28 @@ gunicorn retrostore.wsgi:application --bind 0.0.0.0:$PORT --timeout 120
 ### Health Check
 - Health check endpoint: `/health/`
 - Timeout: 300 seconds
-- Restart policy: ON_FAILURE with max 10 retries 
+- Restart policy: ON_FAILURE with max 10 retries
+
+### New QA Endpoint
+```bash
+# Clear all comments (admin only):
+DELETE /api/comments/clear_all/
+Headers: Authorization: Bearer {admin_token}
+Response: 204 No Content
+```
+
+### Usage in QA Tests
+```python
+# In your QA automation:
+import requests
+
+def clear_comments_for_testing():
+    # Login as admin
+    token = requests.post('/api/login/', json={
+        'username': 'Admin', 'password': 'Admin'
+    }).json()['access']
+    
+    # Clear all comments
+    headers = {'Authorization': f'Bearer {token}'}
+    requests.delete('/api/comments/clear_all/', headers=headers)
+``` 
